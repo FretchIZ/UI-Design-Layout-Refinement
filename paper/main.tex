@@ -1,0 +1,222 @@
+\documentclass[11pt,a4paper]{article}
+
+% ── Packages ──────────────────────────────────────────────────
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+\usepackage{cite}
+\usepackage{listings}
+\usepackage{xcolor}
+
+% ── Metadata ──────────────────────────────────────────────────
+\title{UI Design Layout Refinement: A Component-Based Architecture for\\Interactive AI-Assisted Learning Interfaces}
+
+\author{
+  Fretch Lucero\\
+  \texttt{fretch.lucero@example.com}
+}
+
+\date{\today}
+
+% ── Code style ────────────────────────────────────────────────
+\lstset{
+  basicstyle=\ttfamily\footnotesize,
+  backgroundcolor=\color{gray!8},
+  frame=single,
+  breaklines=true,
+  numbers=left,
+  tabsize=2,
+}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+We present a component-based UI architecture for an interactive AI-assisted learning interface, built with React 19, Vite 8, and Tailwind CSS v4. The application features a conversational AI tutor, real-time neural network visualizations, voice interaction controls, and session-based memory management. We detail the modular design methodology, component decomposition, responsive layout strategy, and the integration of custom SVG-based data visualizations. The system demonstrates how modern front-end tooling can produce rich, responsive educational interfaces with real-time animation and high visual coherence.
+\end{abstract}
+
+% ── Introduction ──────────────────────────────────────────────
+\section{Introduction}
+
+The demand for personalized, interactive digital learning tools has grown substantially. AI-powered tutoring systems that combine conversational interfaces with rich visualizations offer significant potential for improving comprehension and retention. However, designing such systems requires careful attention to layout architecture, real-time rendering performance, component reusability, and visual coherence.
+
+In this paper, we describe the design and implementation of a UI layout refinement system for an AI learning companion named {\itshape Nova}. The system integrates a chat-based tutoring interface, interactive neural network diagrams, mathematical equation display, code panels with syntax highlighting, voice-controlled interaction, and animated visual feedback --- all within a cohesive dark-themed design system.
+
+% ── System Architecture ──────────────────────────────────────
+\section{System Architecture}
+
+\subsection{Technology Stack}
+
+The application is built on a modern front-end stack selected for performance, developer experience, and maintainability:
+
+\begin{itemize}
+  \item \textbf{React 19}: Component-based UI framework with hooks-based state management.
+  \item \textbf{Vite 8}: Fast build tool with HMR (Hot Module Replacement) and optimized production builds.
+  \item \textbf{Tailwind CSS v4}: Utility-first CSS framework integrated via the \texttt{@tailwindcss/vite} plugin, enabling rapid styling without custom CSS files.
+  \item \textbf{TypeScript 5.7}: Static type checking for improved code quality and developer ergonomics.
+  \item \textbf{Figma Make}: Deployment and preview environment with custom Vite plugins for site configuration and hot-reload resilience.
+\end{itemize}
+
+\subsection{Component Architecture}
+
+The application follows a flat component hierarchy rooted in a single \texttt{App} component that orchestrates top-level layout, state management via React hooks, and side-effect coordination through \texttt{useEffect}. The major component groups are:
+
+\begin{enumerate}
+  \item \textbf{Layout Shell}: Sidebar navigation, panel headers, and a three-section responsive layout (sidebar, main content, bottom controls).
+  \item \textbf{Chat Interface}: Message list with agent/user bubble styling, input bar with send action, and auto-scroll behavior.
+  \item \textbf{Visualization Components}: SVG-rendered neural network graph, animated frequency spectrum bars, and lip-sync mouth animation.
+  \item \textbf{Lesson Panels}: Tabbed interface (\texttt{visual}, \texttt{math}, \texttt{code}) delivering educational content through diagrams, equations, and code.
+  \item \textbf{Management Panels}: Memory session browser and settings configuration interface.
+  \item \textbf{Voice Controls}: Microphone toggle with pulse animation, frequency slider, and mute/unmute controls.
+\end{enumerate}
+
+% ── Design Methodology ───────────────────────────────────────
+\section{Design Methodology}
+
+\subsection{Layout Refinement}
+
+The layout is structured as a three-region vertical split: a fixed-width icon sidebar (64\,px), a flexible main content area divided into two horizontally-split panels, and a fixed-height bottom control bar (82\,px). The main content panels use CSS flex proportions (3:2 ratio) to allocate space between the chat interface and the lesson/visualization panel.
+
+Recent refinement introduced semi-dark rounded panel backgrounds (\texttt{\#0d0d22}) with subtle borders and margin-based gutters, transforming flat layout sections into visually distinct cards. This approach improves content hierarchy and user focus.
+
+\subsection{Design System}
+
+A CSS custom property palette defines the visual language:
+
+\begin{table}[h]
+\centering
+\begin{tabular}{lll}
+\toprule
+Variable & Value & Purpose \\
+\midrule
+\texttt{--bg} & \texttt{\#07070f} & Main background \\
+\texttt{--sidebar} & \texttt{\#0b0b18} & Sidebar background \\
+\texttt{--panel} & \texttt{\#0e0e1c} & Panel background \\
+\texttt{--card} & \texttt{\#111120} & Card background \\
+\texttt{--primary} & \texttt{\#6366f1} & Indigo primary accent \\
+\texttt{--violet} & \texttt{\#8b5cf6} & Violet secondary accent \\
+\texttt{--text} & \texttt{\#e2e0ff} & Primary text \\
+\bottomrule
+\end{tabular}
+\caption{CSS custom property design tokens}
+\label{tab:tokens}
+\end{table}
+
+The typographic hierarchy pairs Outfit (sans-serif) for headings and UI labels with JetBrains Mono (monospace) for code, data, and technical content.
+
+\subsection{Animation System}
+
+Real-time animations are driven by \texttt{requestAnimationFrame} callbacks managed through React \texttt{useEffect} hooks. Three concurrent animation loops handle:
+
+\begin{itemize}
+  \item \textbf{Frequency bars}: A 26-element array is updated every frame using sinusoidal waveform synthesis with per-bar frequency offsets, creating a natural equalizer visualization.
+  \item \textbf{Lip sync}: A multi-frequency oscillator combines three sinusoids at different rates to produce naturalistic mouth opening and closing.
+  \item \textbf{Pulse ring}: A CSS \texttt{@keyframes} animation creates an expanding and fading ring around the listening button.
+\end{itemize}
+
+% ── Implementation ───────────────────────────────────────────
+\section{Implementation Details}
+
+\subsection{Neural Network Visualization}
+
+The neural network diagram (Figure~\ref{fig:nn}) is rendered as an SVG with programmatically generated edges and nodes. The implementation uses:
+\begin{itemize}
+  \item Layered node positioning with fixed coordinates for input (5 nodes), hidden (3 nodes), and output (2 nodes) layers.
+  \item Semi-transparent connection lines with hue variation between layers.
+  \item SVG filters (\texttt{feGaussianBlur}) for glow effects on active nodes.
+  \item A dashed backward-pass arrow annotated with gradient notation.
+\end{itemize}
+
+\subsection{State Management}
+
+All application state is managed through React's \texttt{useState} and \texttt{useRef} hooks. Key state includes:
+
+\begin{lstlisting}[language=TypeScript, caption=Core state types]
+interface Message {
+  role: 'agent' | 'user'
+  text: string
+  time: string
+}
+
+const [activeNav, setActiveNav] = useState<'chat' | 'memory' | 'settings'>
+const [messages, setMessages] = useState<Message[]>(INITIAL_MESSAGES)
+const [frequency, setFrequency] = useState(68)
+const [isListening, setIsListening] = useState(false)
+const [isSpeaking, setIsSpeaking] = useState(true)
+\end{lstlisting}
+
+\subsection{Code Panel with Syntax Highlighting}
+
+The code panel implements token-level syntax coloring without external dependencies. Each line is an array of token objects specifying the text and color:
+
+\begin{lstlisting}[language=TypeScript, caption=Token-based syntax highlighting]
+type Token = { t: string; c: string }
+const lines: Token[][] = [
+  [{ t: 'def ', c: '#6366f1' },
+   { t: 'backprop', c: '#a78bfa' },
+   { t: '(X, y, W1, W2, lr=', c: '#c4c2f0' },
+   { t: '0.01', c: '#34d399' },
+   { t: '):', c: '#c4c2f0' }],
+  // ...
+]
+\end{lstlisting}
+
+% ── Results ──────────────────────────────────────────────────
+\section{Results and Discussion}
+
+The component-based architecture proved effective for organizing the diverse feature set. Key outcomes include:
+
+\begin{itemize}
+  \item \textbf{Performance}: All three animation loops maintain 60\,FPS on modern hardware. SVG rendering of the neural network completes within a single frame.
+  \item \textbf{Code organization}: The single-file \texttt{App.tsx} (953 lines) consolidated all components during rapid prototyping. For production scaling, extraction into separate component files is recommended.
+  \item \textbf{Design consistency}: The CSS custom property system ensured consistent theming across all panels and interaction states.
+\end{itemize}
+
+\subsection{Limitations}
+
+\begin{enumerate}
+  \item The monolithic component structure limits maintainability for larger feature sets.
+  \item Voice interaction is simulated (no Web Speech API integration).
+  \item Message persistence uses in-memory state only; no backend or localStorage persistence is implemented.
+\end{enumerate}
+
+\subsection{Future Work}
+
+Planned enhancements include: extraction of a component library with Storybook documentation, integration of browser-native speech recognition and synthesis, state persistence via IndexedDB, and responsive layout adaptation for mobile viewports.
+
+% ── Conclusion ────────────────────────────────────────────────
+\section{Conclusion}
+
+We presented a UI layout refinement system for an interactive AI-assisted learning interface built with modern front-end tooling. The architecture demonstrates effective integration of conversational UI, real-time data visualization, and voice interaction controls within a cohesive design system. The modular approach, while currently implemented in a single component, establishes clear patterns for extracting a maintainable, scalable component library.
+
+% ── References ────────────────────────────────────────────────
+\begin{thebibliography}{9}
+
+\bib{react}
+React Documentation,
+\texttt{https://react.dev/}
+
+\bib{vite}
+Vite Documentation,
+\texttt{https://vite.dev/}
+
+\bib{tailwind}
+Tailwind CSS v4 Documentation,
+\texttt{https://tailwindcss.com/}
+
+\bib{figma}
+Figma Make Documentation,
+\texttt{https://www.figma.com/}
+
+\bib{typescript}
+TypeScript Documentation,
+\texttt{https://www.typescriptlang.org/}
+
+\end{thebibliography}
+
+\end{document}
