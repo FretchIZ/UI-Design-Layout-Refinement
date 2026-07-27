@@ -653,7 +653,7 @@ export default function App() {
                     { label: 'Voice Model', value: 'Elice — Standard', tag: 'ACTIVE' },
                     { label: 'Language', value: 'English (US)', tag: null },
                     { label: 'Response Style', value: 'Detailed', tag: null },
-                    { label: 'Theme', value: 'Dark Cosmic', tag: 'CURRENT' },
+                    { label: 'Theme', value: 'Semi Black', tag: 'CURRENT' },
                     { label: 'Auto-memory', value: 'Enabled', tag: 'ON' },
                     { label: 'Speech rate', value: '1.0×', tag: null },
                   ].map((s, i) => (
@@ -800,7 +800,7 @@ export default function App() {
             justifyContent: 'space-between',
             paddingInline: '24px',
             borderTop: '1px solid var(--border)',
-            background: 'rgba(10,10,20,0.97)',
+            background: 'rgba(7,7,7,0.97)',
             flexShrink: 0,
           }}
         >
