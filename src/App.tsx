@@ -89,24 +89,7 @@ function IconSend() {
     </svg>
   )
 }
-function IconMic() {
-  return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" fill="white" />
-      <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
-      <line x1="12" y1="19" x2="12" y2="23" />
-      <line x1="8" y1="23" x2="16" y2="23" />
-    </svg>
-  )
-}
-function IconPause() {
-  return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="white">
-      <rect x="6" y="4" width="4" height="16" rx="1.5" />
-      <rect x="14" y="4" width="4" height="16" rx="1.5" />
-    </svg>
-  )
-}
+
 
 // ── Neural Network Visualization ───────────────────────────────
 function NeuralNetViz() {
@@ -190,76 +173,6 @@ function NeuralNetViz() {
   )
 }
 
-// ── Lip Shape Visualizer ───────────────────────────────────────
-function LipVisualizer({ open, active }: { open: number; active: boolean }) {
-  const cy = 26
-  const gap = open * 11
-
-  const upper = [
-    `M 5,${cy}`,
-    `C 12,${cy - 13} 22,${cy - 15} 29,${cy - 10}`,
-    `C 33,${cy - 7} 35,${cy - 5} 38,${cy - 7}`,
-    `C 45,${cy - 15} 55,${cy - 13} 62,${cy}`,
-    'Z',
-  ].join(' ')
-
-  const lower = [
-    `M 5,${cy}`,
-    `C 22,${cy + 12 + gap} 45,${cy + 12 + gap} 62,${cy}`,
-    'Z',
-  ].join(' ')
-
-  const highlight = `M 22,${cy - 9} C 27,${cy - 13} 34,${cy - 13} 39,${cy - 10}`
-
-  return (
-    <svg viewBox="0 0 67 52" width="74" height="58">
-      <defs>
-        <filter id="lipglow">
-          <feGaussianBlur stdDeviation="2" result="b" />
-          <feMerge>
-            <feMergeNode in="b" />
-            <feMergeNode in="SourceGraphic" />
-          </feMerge>
-        </filter>
-        <radialGradient id="upperGrad" cx="50%" cy="60%" r="60%">
-          <stop offset="0%" stopColor={active ? '#818cf8' : '#6366f1'} />
-          <stop offset="100%" stopColor="#4f46e5" />
-        </radialGradient>
-        <radialGradient id="lowerGrad" cx="50%" cy="40%" r="60%">
-          <stop offset="0%" stopColor={active ? '#a78bfa' : '#8b5cf6'} />
-          <stop offset="100%" stopColor="#7c3aed" />
-        </radialGradient>
-      </defs>
-      <path d={upper} fill="url(#upperGrad)" filter="url(#lipglow)" opacity={active ? 1 : 0.7} />
-      <path d={lower} fill="url(#lowerGrad)" filter="url(#lipglow)" opacity={active ? 1 : 0.7} />
-      <path d={highlight} stroke="rgba(255,255,255,0.28)" strokeWidth="1.5" fill="none" strokeLinecap="round" />
-    </svg>
-  )
-}
-
-// ── Frequency Bars ─────────────────────────────────────────────
-function FreqBars({ values, active, flip }: { values: number[]; active: boolean; flip?: boolean }) {
-  const arr = flip ? [...values].reverse() : values
-  return (
-    <div className="flex items-center gap-[2px] h-10">
-      {arr.map((h, i) => (
-        <div
-          key={i}
-          style={{
-            height: `${Math.max(3, h * 40)}px`,
-            width: '3px',
-            borderRadius: '2px',
-            background: active
-              ? `hsl(${245 + i * 3}, 75%, ${45 + h * 35}%)`
-              : 'rgba(99,102,241,0.2)',
-            transition: active ? 'height 0.07s ease' : 'height 0.4s ease',
-          }}
-        />
-      ))}
-    </div>
-  )
-}
-
 // ── Code Panel ─────────────────────────────────────────────────
 function CodePanel() {
   type Token = { t: string; c: string }
@@ -306,57 +219,9 @@ function CodePanel() {
 export default function App() {
   const [activeNav, setActiveNav] = useState<'chat' | 'memory' | 'settings'>('chat')
   const [lessonTab, setLessonTab] = useState<'visual' | 'math' | 'code'>('visual')
-  const [isListening, setIsListening] = useState(false)
-  const [isSpeaking, setIsSpeaking] = useState(true)
-  const [frequency, setFrequency] = useState(68)
-  const [bars, setBars] = useState<number[]>(() => Array.from({ length: 26 }, () => 0.08))
-  const [lipOpen, setLipOpen] = useState(0)
   const [inputText, setInputText] = useState('')
   const [messages, setMessages] = useState<Message[]>(INITIAL_MESSAGES)
   const messagesEndRef = useRef<HTMLDivElement>(null)
-  const tRef = useRef(0)
-  const barsRaf = useRef<number>(0)
-  const lipRaf = useRef<number>(0)
-  const lipT = useRef(0)
-
-  // Frequency bar animation
-  useEffect(() => {
-    const active = isListening || isSpeaking
-    const tick = () => {
-      tRef.current += 0.035
-      setBars(prev =>
-        prev.map((b, i) => {
-          const wave = active
-            ? Math.abs(Math.sin(tRef.current * (1.8 + i * 0.12) + i * 0.4)) * (frequency / 100)
-            : 0.08
-          return b + (wave - b) * (active ? 0.22 : 0.08)
-        })
-      )
-      barsRaf.current = requestAnimationFrame(tick)
-    }
-    barsRaf.current = requestAnimationFrame(tick)
-    return () => { if (barsRaf.current) cancelAnimationFrame(barsRaf.current) }
-  }, [isListening, isSpeaking, frequency])
-
-  // Lip animation
-  useEffect(() => {
-    if (!isSpeaking) {
-      setLipOpen(0)
-      return
-    }
-    const tick = () => {
-      lipT.current += 0.055
-      const t = lipT.current
-      setLipOpen(
-        Math.abs(Math.sin(t * 2.1)) * 0.55 +
-        Math.abs(Math.sin(t * 5.3)) * 0.3 +
-        Math.abs(Math.sin(t * 9.7)) * 0.15
-      )
-      lipRaf.current = requestAnimationFrame(tick)
-    }
-    lipRaf.current = requestAnimationFrame(tick)
-    return () => { if (lipRaf.current) cancelAnimationFrame(lipRaf.current) }
-  }, [isSpeaking])
 
   // Auto-scroll chat
   useEffect(() => {
@@ -381,10 +246,6 @@ export default function App() {
     }, 900)
   }
 
-  const leftBars = bars.slice(0, 13)
-  const rightBars = bars.slice(13)
-  const isActive = isListening || isSpeaking
-
   return (
     <div
       style={{
@@ -398,6 +259,7 @@ export default function App() {
     >
       {/* ── SIDEBAR ─────────────────────────────────────────── */}
       <aside
+        className="sidebar"
         style={{
           width: '64px',
           display: 'flex',
@@ -459,10 +321,11 @@ export default function App() {
       {/* ── MAIN COLUMN ─────────────────────────────────────── */}
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
         {/* Top panels */}
-        <div style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
+        <div className="layout-row" style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
 
           {/* ── SCREEN 1: Chat / Memory / Settings ───────────── */}
           <div
+            className="screen-panel"
             style={{
               flex: '3 1 0',
               display: 'flex',
@@ -492,28 +355,15 @@ export default function App() {
                       color: 'white',
                       flexShrink: 0,
                     }}
-                  >N</div>
+                  >E</div>
                   <div>
                     <div style={{ fontSize: '13px', fontWeight: 600, color: '#c4c2f0' }}>Elice</div>
-                    <div style={{ fontSize: '11px', color: 'var(--dim)', fontFamily: "'JetBrains Mono', monospace" }}>AI Education & Engineering Platform</div>
-                  </div>
-                  <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                    <div style={{ width: '7px', height: '7px', borderRadius: '50%', background: '#10b981', boxShadow: '0 0 6px #10b981' }} />
-                    <span style={{ fontSize: '11px', color: 'var(--dim)', fontFamily: "'JetBrains Mono', monospace" }}>ACTIVE</span>
+                    <div style={{ fontSize: '11px', color: 'var(--dim)' }}>AI Education & Engineering Platform</div>
                   </div>
                 </div>
               )}
               {activeNav === 'memory' && (
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                  <span style={{ fontSize: '13px', fontWeight: 600, color: '#c4c2f0' }}>Memory</span>
-                  <span style={{
-                    fontSize: '11px', padding: '2px 8px', borderRadius: '20px',
-                    background: 'rgba(99,102,241,0.14)', color: '#818cf8',
-                    fontFamily: "'JetBrains Mono', monospace",
-                  }}>
-                    {MEMORY_ITEMS.length} sessions
-                  </span>
-                </div>
+                <span style={{ fontSize: '13px', fontWeight: 600, color: '#c4c2f0' }}>Memory</span>
               )}
               {activeNav === 'settings' && (
                 <span style={{ fontSize: '13px', fontWeight: 600, color: '#c4c2f0' }}>Settings</span>
@@ -526,6 +376,7 @@ export default function App() {
               {activeNav === 'chat' && (
                 <>
                   <div
+                    className="messages-area"
                     style={{
                       flex: 1,
                       overflowY: 'auto',
@@ -536,35 +387,36 @@ export default function App() {
                     }}
                   >
                     {messages.map((msg, i) => (
-                      <div key={i} style={{ display: 'flex', gap: '10px', flexDirection: msg.role === 'user' ? 'row-reverse' : 'row' }}>
+                      <div key={i} style={{ display: 'flex', gap: '8px', flexDirection: msg.role === 'user' ? 'row-reverse' : 'row', alignItems: 'flex-start' }}>
                         {msg.role === 'agent' && (
                           <div style={{
-                            width: '26px', height: '26px', borderRadius: '50%',
+                            width: '28px', height: '28px', borderRadius: '50%',
                             background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
                             display: 'flex', alignItems: 'center', justifyContent: 'center',
-                            fontSize: '11px', fontWeight: 700, color: 'white',
-                            flexShrink: 0, marginTop: '2px',
-                          }}>N</div>
+                            fontSize: '12px', fontWeight: 700, color: 'white',
+                            flexShrink: 0, marginTop: '4px',
+                            boxShadow: '0 0 10px rgba(99,102,241,0.3)',
+                          }}>E</div>
                         )}
-                        <div style={{ maxWidth: '82%' }}>
+                        <div style={{ maxWidth: msg.role === 'agent' ? '78%' : '82%' }}>
                           <div style={{
-                            padding: '10px 14px',
-                            borderRadius: msg.role === 'agent' ? '4px 16px 16px 16px' : '16px 4px 16px 16px',
-                            background: msg.role === 'agent' ? 'rgba(99,102,241,0.09)' : 'rgba(139,92,246,0.13)',
-                            border: `1px solid ${msg.role === 'agent' ? 'rgba(99,102,241,0.14)' : 'rgba(139,92,246,0.18)'}`,
-                            fontSize: '13px',
-                            lineHeight: '1.6',
-                            color: msg.role === 'agent' ? '#c4c2f0' : '#ddd6fe',
+                            padding: '12px 16px',
+                            borderRadius: msg.role === 'agent' ? '4px 18px 18px 18px' : '18px 4px 18px 18px',
+                            background: msg.role === 'agent' ? 'rgba(99,102,241,0.08)' : 'rgba(139,92,246,0.18)',
+                            border: `1px solid ${msg.role === 'agent' ? 'rgba(99,102,241,0.1)' : 'rgba(139,92,246,0.2)'}`,
+                            fontSize: '13.5px',
+                            lineHeight: '1.65',
+                            color: msg.role === 'agent' ? '#d0cef5' : '#e8e2ff',
                           }}>
                             {msg.text}
                           </div>
                           <div style={{
                             fontSize: '10px',
-                            marginTop: '4px',
-                            paddingInline: '4px',
+                            marginTop: '6px',
+                            paddingInline: '6px',
                             color: '#2a2a4a',
                             textAlign: msg.role === 'user' ? 'right' : 'left',
-                            fontFamily: "'JetBrains Mono', monospace",
+                            letterSpacing: '0.3px',
                           }}>{msg.time}</div>
                         </div>
                       </div>
@@ -573,34 +425,38 @@ export default function App() {
                   </div>
 
                   {/* Input bar */}
-                  <div style={{ padding: '10px 14px 12px', borderTop: '1px solid var(--border)' }}>
+                  <div className="chat-input" style={{ padding: '12px 16px 16px', borderTop: '1px solid rgba(99,102,241,0.06)' }}>
                     <div style={{
                       display: 'flex', alignItems: 'center', gap: '8px',
-                      padding: '8px 12px',
-                      borderRadius: '12px',
-                      background: 'rgba(99,102,241,0.07)',
-                      border: '1px solid rgba(99,102,241,0.14)',
-                    }}>
+                      padding: '10px 14px',
+                      borderRadius: '14px',
+                      background: 'rgba(99,102,241,0.05)',
+                      border: '1px solid rgba(99,102,241,0.12)',
+                      transition: 'border-color 0.2s',
+                    }}
+                    onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = 'rgba(99,102,241,0.25)' }}
+                    onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = 'rgba(99,102,241,0.12)' }}>
                       <input
                         type="text"
                         value={inputText}
                         onChange={e => setInputText(e.target.value)}
                         onKeyDown={e => e.key === 'Enter' && sendMessage()}
-                        placeholder="Ask anything..."
+                        placeholder="Type your message..."
                         style={{
                           flex: 1, background: 'transparent', border: 'none',
-                          outline: 'none', fontSize: '13px', color: '#c4c2f0',
-                          caretColor: '#6366f1', fontFamily: "'Outfit', sans-serif",
+                          outline: 'none', fontSize: '13.5px', color: '#d0cef5',
+                          caretColor: '#6366f1',
                         }}
                       />
                       <button
                         onClick={sendMessage}
                         style={{
-                          width: '28px', height: '28px', borderRadius: '8px',
+                          width: '32px', height: '32px', borderRadius: '10px',
                           border: 'none', cursor: 'pointer',
-                          background: inputText.trim() ? '#6366f1' : 'rgba(99,102,241,0.18)',
+                          background: inputText.trim() ? 'linear-gradient(135deg, #6366f1, #8b5cf6)' : 'rgba(99,102,241,0.15)',
                           display: 'flex', alignItems: 'center', justifyContent: 'center',
-                          transition: 'background 0.2s',
+                          transition: 'all 0.25s',
+                          opacity: inputText.trim() ? 1 : 0.6,
                         }}
                       >
                         <IconSend />
@@ -650,12 +506,12 @@ export default function App() {
               {activeNav === 'settings' && (
                 <div style={{ flex: 1, overflowY: 'auto', padding: '16px' }}>
                   {[
-                    { label: 'Voice Model', value: 'Elice — Standard', tag: 'ACTIVE' },
-                    { label: 'Language', value: 'English (US)', tag: null },
-                    { label: 'Response Style', value: 'Detailed', tag: null },
-                    { label: 'Theme', value: 'Semi Black', tag: 'CURRENT' },
-                    { label: 'Auto-memory', value: 'Enabled', tag: 'ON' },
-                    { label: 'Speech rate', value: '1.0×', tag: null },
+                    { label: 'Voice Model', value: 'Elice — Standard' },
+                    { label: 'Language', value: 'English (US)' },
+                    { label: 'Response Style', value: 'Detailed' },
+                    { label: 'Theme', value: 'Semi Black' },
+                    { label: 'Auto-memory', value: 'Enabled' },
+                    { label: 'Speech rate', value: '1.0×' },
                   ].map((s, i) => (
                     <div
                       key={i}
@@ -665,16 +521,7 @@ export default function App() {
                       }}
                     >
                       <span style={{ fontSize: '13px', color: 'var(--muted)' }}>{s.label}</span>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        {s.tag && (
-                          <span style={{
-                            fontSize: '9px', padding: '2px 6px', borderRadius: '4px',
-                            background: 'rgba(99,102,241,0.12)', color: '#818cf8',
-                            fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.5px',
-                          }}>{s.tag}</span>
-                        )}
-                        <span style={{ fontSize: '13px', color: '#c4c2f0', fontWeight: 500 }}>{s.value}</span>
-                      </div>
+                      <span style={{ fontSize: '13px', color: '#c4c2f0', fontWeight: 500 }}>{s.value}</span>
                     </div>
                   ))}
                 </div>
@@ -684,6 +531,7 @@ export default function App() {
 
           {/* ── SCREEN 2: Lesson / Visualization ──────────────── */}
           <div
+            className="screen-panel"
             style={{
               flex: '2 1 0',
               display: 'flex',
@@ -741,22 +589,7 @@ export default function App() {
                   }}>
                     Forward pass → compute loss → backward pass via chain rule → update weights
                   </div>
-                  <div style={{ display: 'flex', gap: '8px' }}>
-                    {[
-                      { label: 'Layers', value: '3' },
-                      { label: 'Params', value: '47' },
-                      { label: 'Loss', value: '0.042' },
-                      { label: 'Epoch', value: '12 / 50' },
-                    ].map(s => (
-                      <div key={s.label} style={{
-                        flex: 1, padding: '8px', borderRadius: '8px', textAlign: 'center',
-                        background: 'rgba(99,102,241,0.06)', border: '1px solid var(--border)',
-                      }}>
-                        <div style={{ fontSize: '15px', fontWeight: 600, color: '#a5b4fc', fontFamily: "'JetBrains Mono', monospace" }}>{s.value}</div>
-                        <div style={{ fontSize: '10px', color: 'var(--dim)', marginTop: '2px' }}>{s.label}</div>
-                      </div>
-                    ))}
-                  </div>
+
                 </div>
               )}
 
@@ -792,114 +625,7 @@ export default function App() {
         </div>
 
         {/* ── BOTTOM CONTROLS ──────────────────────────────────── */}
-        <div
-          style={{
-            height: '82px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            paddingInline: '24px',
-            borderTop: '1px solid var(--border)',
-            background: 'rgba(7,7,7,0.97)',
-            flexShrink: 0,
-          }}
-        >
-          {/* Left: Frequency section */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '5px', minWidth: '180px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <span style={{ fontSize: '9px', letterSpacing: '1.2px', color: 'var(--dim)', fontFamily: "'JetBrains Mono', monospace" }}>
-                FREQUENCY
-              </span>
-              <span style={{ fontSize: '10px', color: '#6366f1', fontFamily: "'JetBrains Mono', monospace" }}>{frequency}%</span>
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <FreqBars values={leftBars} active={isActive} flip />
-              <input
-                type="range" min={10} max={100} value={frequency}
-                onChange={e => setFrequency(Number(e.target.value))}
-                style={{ width: '72px', height: '3px', cursor: 'pointer' }}
-              />
-            </div>
-          </div>
-
-          {/* Center: Main circular button */}
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px' }}>
-            <button
-              onClick={() => {
-                if (isListening) {
-                  setIsListening(false)
-                  setIsSpeaking(true)
-                } else {
-                  setIsListening(true)
-                  setIsSpeaking(false)
-                }
-              }}
-              style={{
-                width: '52px', height: '52px', borderRadius: '50%', border: 'none',
-                cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                background: isListening
-                  ? 'linear-gradient(135deg, #ef4444, #dc2626)'
-                  : 'linear-gradient(135deg, #6366f1, #8b5cf6)',
-                boxShadow: isListening
-                  ? '0 0 0 8px rgba(239,68,68,0.12), 0 0 24px rgba(239,68,68,0.35)'
-                  : '0 0 0 8px rgba(99,102,241,0.12), 0 0 24px rgba(99,102,241,0.35)',
-                transition: 'all 0.25s ease',
-                position: 'relative',
-              }}
-            >
-              {isListening ? <IconPause /> : <IconMic />}
-
-              {/* Pulse ring when listening */}
-              {isListening && (
-                <span style={{
-                  position: 'absolute', inset: '-8px',
-                  borderRadius: '50%',
-                  border: '1.5px solid rgba(239,68,68,0.35)',
-                  animation: 'pulse 1.4s ease-in-out infinite',
-                }} />
-              )}
-            </button>
-            <span style={{
-              fontSize: '9px', letterSpacing: '1.2px', color: 'var(--dim)',
-              fontFamily: "'JetBrains Mono', monospace",
-            }}>
-              {isListening ? 'LISTENING' : isSpeaking ? 'SPEAKING' : 'TAP TO SPEAK'}
-            </span>
-          </div>
-
-          {/* Right: Lip visualizer */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '5px', alignItems: 'flex-end', minWidth: '180px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <span style={{ fontSize: '9px', letterSpacing: '1.2px', color: 'var(--dim)', fontFamily: "'JetBrains Mono', monospace" }}>
-                VOICE SHAPE
-              </span>
-              <button
-                onClick={() => setIsSpeaking(s => !s)}
-                style={{
-                  width: '16px', height: '16px', borderRadius: '50%', border: 'none',
-                  cursor: 'pointer', fontSize: '7px', color: 'white',
-                  background: isSpeaking ? '#10b981' : '#3a3a5a',
-                  transition: 'background 0.2s',
-                }}
-                title={isSpeaking ? 'Mute agent' : 'Unmute agent'}
-              >
-                {isSpeaking ? '●' : '○'}
-              </button>
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <LipVisualizer open={lipOpen} active={isSpeaking} />
-              <FreqBars values={rightBars} active={isActive} />
-            </div>
-          </div>
-        </div>
       </div>
-
-      <style>{`
-        @keyframes pulse {
-          0%, 100% { transform: scale(1); opacity: 0.8; }
-          50% { transform: scale(1.18); opacity: 0.3; }
-        }
-      `}</style>
     </div>
   )
 }
@@ -918,6 +644,7 @@ function SidebarBtn({
 }) {
   return (
     <button
+      className="sidebar-btn"
       onClick={onClick}
       title={title}
       style={{
@@ -945,6 +672,7 @@ function SidebarBtn({
 function PanelHeader({ children }: { children: React.ReactNode }) {
   return (
     <div
+      className="panel-header"
       style={{
         display: 'flex', alignItems: 'center', gap: '10px',
         padding: '10px 14px',

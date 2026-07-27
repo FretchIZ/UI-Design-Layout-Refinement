@@ -40,3 +40,17 @@ input[type='range'] {
   color: var(--dim);
   opacity: 1;
 }
+
+@media (max-width: 900px) {
+  .layout-row { flex-direction: column !important; }
+  .screen-panel { flex: 1 1 auto !important; margin: 4px 6px !important; min-height: 300px; }
+}
+
+@media (max-width: 600px) {
+  .sidebar { width: 48px !important; }
+  .sidebar-btn { width: 32px !important; height: 32px !important; }
+  .bottom-bar { height: 56px !important; gap: 12px !important; padding-inline: 12px !important; }
+  .panel-header { padding: 8px 10px !important; min-height: 44px !important; }
+  .messages-area { padding: 10px 10px 6px !important; }
+  .chat-input { padding: 8px 10px !important; }
+}
