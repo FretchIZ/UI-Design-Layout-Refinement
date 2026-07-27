@@ -1,6 +1,6 @@
-# UI Design Layout Refinement
+# AI EDUCATION & ENGINEERING PLATFORM — UI Layout
 
-An interactive AI-assisted learning interface built with React, Vite, and Tailwind CSS v4. Features a conversational AI tutor, neural network visualizations, voice interaction controls, and session memory management — all running inside Figma Make.
+An interactive AI-assisted learning and engineering interface built with React, Vite, and Tailwind CSS v4. Features a conversational AI tutor (Elice), neural network visualizations, voice interaction controls, and session memory management — all running inside Figma Make.
 
 ## Project Structure
 
@@ -37,7 +37,7 @@ UI Design Layout Refinement/
 
 ## Features
 
-### AI Learning Companion (Nova)
+### AI Learning Companion (Elice)
 - Conversational chat interface with agent/user message threading
 - Auto-scroll and message timestamp tracking
 - Real-time agent response simulation

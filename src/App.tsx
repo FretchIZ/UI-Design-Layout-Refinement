@@ -11,7 +11,7 @@ interface Message {
 const INITIAL_MESSAGES: Message[] = [
   {
     role: 'agent',
-    text: "Hello! I'm Nova, your AI learning companion. What would you like to explore today?",
+    text: "Hello! I'm Elice, your AI learning companion. What would you like to explore today?",
     time: '10:42',
   },
   {
@@ -494,8 +494,8 @@ export default function App() {
                     }}
                   >N</div>
                   <div>
-                    <div style={{ fontSize: '13px', fontWeight: 600, color: '#c4c2f0' }}>Nova</div>
-                    <div style={{ fontSize: '11px', color: 'var(--dim)', fontFamily: "'JetBrains Mono', monospace" }}>AI Learning Companion</div>
+                    <div style={{ fontSize: '13px', fontWeight: 600, color: '#c4c2f0' }}>Elice</div>
+                    <div style={{ fontSize: '11px', color: 'var(--dim)', fontFamily: "'JetBrains Mono', monospace" }}>AI Education & Engineering Platform</div>
                   </div>
                   <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '6px' }}>
                     <div style={{ width: '7px', height: '7px', borderRadius: '50%', background: '#10b981', boxShadow: '0 0 6px #10b981' }} />
@@ -650,7 +650,7 @@ export default function App() {
               {activeNav === 'settings' && (
                 <div style={{ flex: 1, overflowY: 'auto', padding: '16px' }}>
                   {[
-                    { label: 'Voice Model', value: 'Nova — Standard', tag: 'ACTIVE' },
+                    { label: 'Voice Model', value: 'Elice — Standard', tag: 'ACTIVE' },
                     { label: 'Language', value: 'English (US)', tag: null },
                     { label: 'Response Style', value: 'Detailed', tag: null },
                     { label: 'Theme', value: 'Dark Cosmic', tag: 'CURRENT' },
