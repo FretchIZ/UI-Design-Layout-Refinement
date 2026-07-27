@@ -1,11 +1,11 @@
-# AI EDUCATION & ENGINEERING PLATFORM — UI Layout
+# Webia — AI Education & Engineering Platform
 
 An interactive AI-assisted learning and engineering interface built with React, Vite, and Tailwind CSS v4. Features a conversational AI tutor (Elice), neural network visualizations, voice interaction controls, and session memory management — all running inside Figma Make.
 
 ## Project Structure
 
 ```
-UI Design Layout Refinement/
+Webia/
 ├── .figma/
 │   └── make/
 │       └── site.json                 # Figma Make site configuration
