@@ -469,7 +469,7 @@ export default function App() {
               flexDirection: 'column',
               overflow: 'hidden',
               borderRadius: '14px',
-              background: '#0d0d22',
+              background: '#090909',
               border: '1px solid rgba(99,102,241,0.07)',
               margin: '6px 3px 6px 6px',
             }}
@@ -690,7 +690,7 @@ export default function App() {
               flexDirection: 'column',
               overflow: 'hidden',
               borderRadius: '14px',
-              background: '#0d0d22',
+              background: '#090909',
               border: '1px solid rgba(99,102,241,0.07)',
               margin: '6px 6px 6px 3px',
             }}
